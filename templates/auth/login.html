@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In — AI Mock Interview{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 40px; padding-bottom: 60px;">
+    <div class="form-card" style="max-width: 480px;">
+        <div class="form-header" style="text-align: center;">
+            <div class="brand-icon" style="margin: 0 auto 16px; width: 48px; height: 48px; font-size: 1.4rem;">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h2>Sign In to Your Account</h2>
+            <p>Access your interview sessions, progress analytics, and saved PDF reports.</p>
+        </div>
+
+        {% if session.get('guest_id') %}
+            <div class="consent-notice-card" style="margin-bottom: 24px;">
+                <i class="fa-solid fa-link"></i>
+                <p><strong>Guest Session Detected:</strong> Signing in will automatically link your recent guest interview results to your permanent profile!</p>
+            </div>
+        {% endif %}
+
+        <form action="{{ url_for('auth.login') }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address</label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="name@company.com" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">
+                    <span>Password</span>
+                    <a href="javascript:void(0)" onclick="alert('Password reset link will be sent to your email in production deployment.');" class="optional" style="color: var(--primary);">Forgot password?</a>
+                </label>
+                <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+            </div>
+
+            <div class="form-group" style="flex-direction: row; align-items: center; gap: 8px;">
+                <input type="checkbox" id="remember" name="remember" value="true">
+                <label for="remember" style="font-size: 0.88rem; color: var(--text-secondary); cursor: pointer;">Remember this browser session</label>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 10px;">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In
+            </button>
+        </form>
+
+        <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-color); text-align: center;">
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">
+                Don't have an account yet? <a href="{{ url_for('auth.register') }}" style="font-weight: 700;">Sign Up Free</a>
+            </p>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">
+                Or <a href="{{ url_for('auth.guest_mode') }}" style="font-weight: 600; color: var(--text-secondary);">Continue as Guest</a> to practise immediately without signing in.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

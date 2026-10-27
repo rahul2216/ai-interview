@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{% block title %}AI Mock Interview — Job Interview Simulation & Feedback{% endblock %}</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('main.home') }}" class="nav-brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-brain"></i>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-title">AI Mock Interview</span>
+                    <span class="brand-tag">Job-Ready Simulation</span>
+                </div>
+            </a>
+
+            <!-- Mobile Toggle -->
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
+            <!-- Navigation Links -->
+            <div class="nav-menu" id="navMenu">
+                <ul class="nav-links">
+                    <li><a href="{{ url_for('main.home') }}" class="nav-link {% if request.endpoint == 'main.home' %}active{% endif %}">Home</a></li>
+                    <li><a href="{{ url_for('interview.setup') }}" class="nav-link nav-highlight {% if request.endpoint == 'interview.setup' %}active{% endif %}"><i class="fa-solid fa-play"></i> Mock Interview</a></li>
+                    <li><a href="{{ url_for('main.technical_interviews') }}" class="nav-link {% if request.endpoint == 'main.technical_interviews' %}active{% endif %}">Technical</a></li>
+                    <li><a href="{{ url_for('main.hr_interviews') }}" class="nav-link {% if request.endpoint == 'main.hr_interviews' %}active{% endif %}">HR & Behavioral</a></li>
+                    <li><a href="{{ url_for('main.coding_interviews') }}" class="nav-link {% if request.endpoint == 'main.coding_interviews' %}active{% endif %}">Coding</a></li>
+                    <li><a href="{{ url_for('main.history') }}" class="nav-link {% if request.endpoint == 'main.history' %}active{% endif %}">History</a></li>
+                    <li><a href="{{ url_for('main.dashboard') }}" class="nav-link {% if request.endpoint == 'main.dashboard' %}active{% endif %}">Dashboard</a></li>
+                </ul>
+
+                <div class="nav-actions">
+                    <!-- Theme Toggle -->
+                    <button id="themeToggleBtn" class="btn-icon theme-toggle" title="Toggle Theme" aria-label="Toggle dark/light theme">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+
+                    {% if current_user.is_authenticated %}
+                        <div class="user-dropdown">
+                            <button class="user-btn" id="userMenuBtn">
+                                <span class="avatar">{{ current_user.full_name[:1].upper() }}</span>
+                                <span class="user-name">{{ current_user.full_name.split(' ')[0] }}</span>
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </button>
+                            <div class="dropdown-menu" id="userDropdownMenu">
+                                <div class="dropdown-header">
+                                    <strong>{{ current_user.full_name }}</strong>
+                                    <small>{{ current_user.email }}</small>
+                                </div>
+                                <hr class="dropdown-divider">
+                                <a href="{{ url_for('main.profile') }}" class="dropdown-item"><i class="fa-solid fa-user-gear"></i> Profile Settings</a>
+                                <a href="{{ url_for('main.dashboard') }}" class="dropdown-item"><i class="fa-solid fa-chart-line"></i> My Analytics</a>
+                                <a href="{{ url_for('main.history') }}" class="dropdown-item"><i class="fa-solid fa-clock-rotate-left"></i> Interview History</a>
+                                <hr class="dropdown-divider">
+                                <a href="{{ url_for('auth.logout') }}" class="dropdown-item text-danger"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out</a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{{ url_for('auth.guest_mode') }}" class="btn btn-outline-nav" title="Try immediately without account">
+                            <i class="fa-solid fa-user-clock"></i> Guest Mode
+                        </a>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-nav-secondary">Sign In</a>
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Sign Up</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages Container -->
+    <div class="flash-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        <div class="alert-content">
+                            {% if category == 'success' %}
+                                <i class="fa-solid fa-circle-check"></i>
+                            {% elif category == 'danger' or category == 'error' %}
+                                <i class="fa-solid fa-circle-exclamation"></i>
+                            {% elif category == 'warning' %}
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            {% else %}
+                                <i class="fa-solid fa-circle-info"></i>
+                            {% endif %}
+                            <span>{{ message }}</span>
+                        </div>
+                        <button class="alert-close" onclick="this.parentElement.remove();">&times;</button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-brain"></i>
+                </div>
+                <span class="brand-title">AI Mock Interview</span>
+                <p class="footer-desc">
+                    Enterprise-grade AI simulation for real-world job interviews. Master technical scenarios, coding challenges, and HR behavioral evaluations with instant, rubric-backed feedback.
+                </p>
+                <div class="ai-status-indicator">
+                    <span class="pulse-dot {% if has_openai_key %}active{% else %}ready{% endif %}"></span>
+                    <span>AI Engine: {% if has_openai_key %}OpenAI Realtime Active{% else %}Smart Offline Rubric Model{% endif %} (v{{ prompt_version }})</span>
+                </div>
+            </div>
+
+            <div class="footer-links-group">
+                <div class="footer-column">
+                    <h4>Interview Tracks</h4>
+                    <ul>
+                        <li><a href="{{ url_for('interview.setup', type='technical') }}">Technical Interview</a></li>
+                        <li><a href="{{ url_for('interview.setup', type='coding') }}">Coding Problem-Solving</a></li>
+                        <li><a href="{{ url_for('interview.setup', type='hr') }}">HR & Behavioral</a></li>
+                        <li><a href="{{ url_for('interview.setup', type='tech_hr') }}">Technical + HR Combo</a></li>
+                        <li><a href="{{ url_for('interview.setup', type='company') }}">Company-Specific</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h4>Platform</h4>
+                    <ul>
+                        <li><a href="{{ url_for('main.home') }}">How It Works</a></li>
+                        <li><a href="{{ url_for('main.dashboard') }}">Performance Analytics</a></li>
+                        <li><a href="{{ url_for('main.history') }}">Interview History</a></li>
+                        <li><a href="{{ url_for('auth.guest_mode') }}">Guest Quick Start</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h4>Legal & Trust</h4>
+                    <ul>
+                        <li><a href="{{ url_for('main.privacy') }}">Privacy Policy</a></li>
+                        <li><a href="{{ url_for('main.terms') }}">Terms of Service</a></li>
+                        <li><span class="disclaimer-badge">Practice Simulator Only</span></li>
+                    </ul>
+                    <p class="footer-disclaimer-small">
+                        AI Mock Interview is an autonomous preparation tool. AI evaluation scores do not constitute formal employment offers or selection guarantees by target employers.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 AI Mock Interview. Built for job seekers, career switchers, and engineers worldwide.</p>
+        </div>
+    </footer>
+
+    <!-- Main JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

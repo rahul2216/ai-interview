@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up — AI Mock Interview{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 40px; padding-bottom: 60px;">
+    <div class="form-card" style="max-width: 540px;">
+        <div class="form-header" style="text-align: center;">
+            <div class="brand-icon" style="margin: 0 auto 16px; width: 48px; height: 48px; font-size: 1.4rem;">
+                <i class="fa-solid fa-user-plus"></i>
+            </div>
+            <h2>Create Your Account</h2>
+            <p>Save your interview history, track competency growth, and download official PDF reports.</p>
+        </div>
+
+        {% if session.get('guest_id') %}
+            <div class="consent-notice-card" style="margin-bottom: 24px;">
+                <i class="fa-solid fa-circle-check" style="color: var(--success);"></i>
+                <p><strong>Guest Mode Active:</strong> Creating an account will automatically transfer your previous guest simulation results to your permanent profile!</p>
+            </div>
+        {% endif %}
+
+        <form action="{{ url_for('auth.register') }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group">
+                <label for="full_name" class="form-label">Full Name</label>
+                <input type="text" id="full_name" name="full_name" class="form-control" value="{{ full_name or '' }}" placeholder="Alex Mercer" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="form-label">Work / Personal Email</label>
+                <input type="email" id="email" name="email" class="form-control" value="{{ email or '' }}" placeholder="alex@domain.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="experience_level" class="form-label">
+                    <span>Professional Experience Level</span>
+                    <span class="optional">Optional</span>
+                </label>
+                <select id="experience_level" name="experience_level" class="form-control">
+                    <option value="Fresher" {% if experience_level == 'Fresher' %}selected{% endif %}>Fresher / College Graduate</option>
+                    <option value="Experienced Professional" {% if experience_level == 'Experienced Professional' %}selected{% endif %}>Experienced Professional</option>
+                    <option value="Career Switcher" {% if experience_level == 'Career Switcher' %}selected{% endif %}>Career Switcher</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Min. 6 characters" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="confirm_password" class="form-label">Confirm Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Repeat password" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 24px;">
+                <i class="fa-solid fa-user-check"></i> Register Account
+            </button>
+        </form>
+
+        <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-color); text-align: center;">
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">
+                Already have an account? <a href="{{ url_for('auth.login') }}" style="font-weight: 700;">Sign In</a>
+            </p>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">
+                Need a quick trial? <a href="{{ url_for('auth.guest_mode') }}" style="font-weight: 600; color: var(--text-secondary);">Continue as Guest</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

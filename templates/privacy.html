@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy Policy — AI Mock Interview{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 40px; padding-bottom: 60px;">
+    <div class="form-card" style="max-width: 820px;">
+        <div class="form-header">
+            <h2>Privacy Policy</h2>
+            <p>Last updated: October 2026 &bull; AI Mock Interview Platform</p>
+        </div>
+
+        <div style="color: var(--text-secondary); line-height: 1.7; font-size: 0.95rem;">
+            <h4 style="color: var(--text-primary); margin: 20px 0 8px;">1. Transparent Audio & Video Usage</h4>
+            <p>
+                <strong>Camera Preview:</strong> When you voluntarily activate the camera during a live interview session, the video stream is rendered strictly inside your local web browser's <code>&lt;video&gt;</code> element using the browser MediaDevices API. <strong>We do not record, transmit, or store video frames on our servers.</strong> We do not conduct automated eye-tracking, expression sentiment scoring, or pseudo-scientific honesty detection.
+            </p>
+            <p style="margin-top: 8px;">
+                <strong>Microphone & Speech Dictation:</strong> When you enable speech-to-text dictation, voice audio is converted to text either natively via your browser's Web Speech API or processed strictly for immediate transcription. Audio recordings are not permanently stored in our databases.
+            </p>
+
+            <h4 style="color: var(--text-primary); margin: 24px 0 8px;">2. AI Processing via Official Backend</h4>
+            <p>
+                To generate customized interview questions and assess candidate answers against technical rubrics, structured contextual information (target company, role, skills, candidate answers) is processed securely through our Python Flask backend to official AI models (OpenAI API). All credentials and API keys remain strictly server-side and are never exposed to client browsers.
+            </p>
+
+            <h4 style="color: var(--text-primary); margin: 24px 0 8px;">3. Data Isolation and Guest Mode</h4>
+            <p>
+                Guest simulation sessions are cryptographically isolated via temporary session identifiers. Guests have the option to link their guest simulations to an authenticated account upon registration. Users can delete any interview session and its corresponding feedback at any time directly from the Interview History tab.
+            </p>
+
+            <h4 style="color: var(--text-primary); margin: 24px 0 8px;">4. Security & Encryption</h4>
+            <p>
+                All account passwords are encrypted using secure cryptographic hashing algorithms. Form and API submissions are guarded by CSRF (Cross-Site Request Forgery) token validation and secure HTTP session cookies.
+            </p>
+        </div>
+
+        <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--border-color);">
+            <a href="{{ url_for('main.home') }}" class="btn btn-secondary">Return Home</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

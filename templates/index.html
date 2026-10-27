@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+
+{% block title %}AI Mock Interview — Job Interview Simulation & AI Evaluation{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container hero-grid">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="fa-solid fa-bolt"></i> Professional Job Readiness Engine
+            </div>
+            <h1 class="hero-title">
+                AI Mock <span class="text-gradient">Interview</span>
+            </h1>
+            <p class="hero-subtitle">
+                Practise real-world job interviews, improve your technical skills, and build confidence with personalized AI feedback.
+            </p>
+            <div class="hero-buttons">
+                <a href="{{ url_for('interview.setup') }}" class="btn btn-primary btn-lg">
+                    <i class="fa-solid fa-play"></i> Start Mock Interview
+                </a>
+                <a href="{{ url_for('main.technical_interviews') }}" class="btn btn-secondary btn-lg">
+                    <i class="fa-solid fa-compass"></i> Explore Interview Types
+                </a>
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-nav btn-lg">
+                    <i class="fa-solid fa-chart-line"></i> View My Progress
+                </a>
+            </div>
+
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <span class="stat-value">100%</span>
+                    <span class="stat-label">Job-Focused Practice</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">5+</span>
+                    <span class="stat-label">Interview Tracks</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">Instant</span>
+                    <span class="stat-label">Rubric Evaluations</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-visual">
+            <div class="hero-card-preview">
+                <div class="preview-header">
+                    <span class="preview-badge"><i class="fa-solid fa-code"></i> Technical Interview</span>
+                    <div class="preview-live-indicator">
+                        <span class="pulse-dot"></span> Live Voice Simulation
+                    </div>
+                </div>
+
+                <div class="preview-question">
+                    <div class="preview-label">Question 1 of 5 • System Architecture</div>
+                    <div class="preview-text">
+                        "How would you design a distributed caching layer using Redis to mitigate database stampedes under 50,000 requests per second?"
+                    </div>
+                </div>
+
+                <div class="preview-waveform">
+                    <div class="waveform-bars">
+                        <span class="bar"></span>
+                        <span class="bar"></span>
+                        <span class="bar"></span>
+                        <span class="bar"></span>
+                        <span class="bar"></span>
+                        <span class="bar"></span>
+                    </div>
+                    <span style="font-size: 0.8rem; font-weight: 600; color: var(--primary);">Speech-to-Text Active</span>
+                </div>
+
+                <div class="preview-feedback-chip">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>Score: 88/100 • Strong reasoning on cache-aside pattern & probabilistic early expiration.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="section section-alt">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-tag">Step-by-Step Workflow</span>
+            <h2 class="section-title">How the AI Interview Works</h2>
+            <p class="section-subtitle">
+                A seamless, realistic end-to-end simulation modeled after rigorous engineering and corporate hiring standards.
+            </p>
+        </div>
+
+        <div class="workflow-grid">
+            <div class="workflow-step">
+                <div class="step-num">1</div>
+                <h4>Configure Target Role</h4>
+                <p>Specify your target company, role, experience level (Fresher or Experienced), skills, and difficulty level.</p>
+            </div>
+            <div class="workflow-step">
+                <div class="step-num">2</div>
+                <h4>Consent & Audio Setup</h4>
+                <p>Review simulation guidelines. Test optional microphone dictation and optional camera preview with complete transparency.</p>
+            </div>
+            <div class="workflow-step">
+                <div class="step-num">3</div>
+                <h4>One-at-a-Time Simulation</h4>
+                <p>The AI asks one question at a time. Listen aloud via text-to-speech, and dictate or type your answers naturally.</p>
+            </div>
+            <div class="workflow-step">
+                <div class="step-num">4</div>
+                <h4>Rubric Feedback & PDF</h4>
+                <p>Receive comprehensive question-by-question scoring, model answers, identified flaws, and an exportable PDF report.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Supported Interview Types -->
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-tag">Role Tracks</span>
+            <h2 class="section-title">Supported Interview Tracks</h2>
+            <p class="section-subtitle">
+                Tailored interview formats covering the entire modern corporate hiring pipeline.
+            </p>
+        </div>
+
+        <div class="card-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-server"></i></div>
+                <h3>Technical Interviews</h3>
+                <p>In-depth conceptual scrutiny covering architecture, databases, API design, scalability bottlenecks, and framework fundamentals.</p>
+                <ul class="feature-list">
+                    <li><i class="fa-solid fa-check"></i> 40-point correctness & depth grading</li>
+                    <li><i class="fa-solid fa-check"></i> Practical production edge cases</li>
+                    <li><i class="fa-solid fa-check"></i> Tailored for junior to principal engineers</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-code"></i></div>
+                <h3>Coding Interviews</h3>
+                <p>Algorithmic logic, data structure optimization, space/time complexity analysis, and edge case mitigation in any language.</p>
+                <ul class="feature-list">
+                    <li><i class="fa-solid fa-check"></i> Built-in monospace code editor</li>
+                    <li><i class="fa-solid fa-check"></i> Big-O asymptotic complexity checks</li>
+                    <li><i class="fa-solid fa-check"></i> Algorithmic reasoning rubrics</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-users"></i></div>
+                <h3>HR & Behavioral (STAR)</h3>
+                <p>Master behavioral questions using the STAR framework (Situation, Task, Action, Result). Prove leadership, ownership, and conflict resolution.</p>
+                <ul class="feature-list">
+                    <li><i class="fa-solid fa-check"></i> STAR methodology evaluation</li>
+                    <li><i class="fa-solid fa-check"></i> Measurable impact assessment</li>
+                    <li><i class="fa-solid fa-check"></i> Company culture alignment</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-building"></i></div>
+                <h3>Company-Specific Simulations</h3>
+                <p>Simulate interview patterns customized to the culture, scale, and standards of tier-1 tech companies, product startups, or consultancies.</p>
+                <ul class="feature-list">
+                    <li><i class="fa-solid fa-check"></i> Role & company contextual prompts</li>
+                    <li><i class="fa-solid fa-check"></i> Real-world scale constraints</li>
+                    <li><i class="fa-solid fa-check"></i> Adaptive difficulty scaling</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Voice & Speech Intelligence -->
+<section class="section section-alt">
+    <div class="container hero-grid">
+        <div class="hero-visual">
+            <div class="feature-card" style="box-shadow: var(--shadow-lg);">
+                <div class="preview-header">
+                    <span class="preview-badge"><i class="fa-solid fa-microphone"></i> Dual Voice & Text Modes</span>
+                </div>
+                <h4 style="margin-bottom: 12px; font-size: 1.15rem; color: var(--text-primary);">Web Speech API Native Integration</h4>
+                <p style="font-size: 0.92rem; color: var(--text-secondary); margin-bottom: 16px;">
+                    Experience hands-free auditory immersion. Have questions read out loud with natural inflection, or toggle audio off anytime with one click.
+                </p>
+                <div class="speech-panel">
+                    <div class="speech-status">
+                        <i class="fa-solid fa-headphones text-primary"></i>
+                        <span>Live Voice Questions: <strong>Active</strong></span>
+                    </div>
+                    <span class="live-badge badge-interview-type">SpeechSynthesis</span>
+                </div>
+                <div class="speech-panel">
+                    <div class="speech-status">
+                        <i class="fa-solid fa-pen-to-square text-primary"></i>
+                        <span>Editable Speech Dictation</span>
+                    </div>
+                    <span class="live-badge badge-difficulty">SpeechRecognition</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-content">
+            <span class="section-tag">Realistic Modalities</span>
+            <h2 class="section-title">Voice & Text Interview Modes</h2>
+            <p class="hero-subtitle">
+                Practise the way you want. Answer through your microphone using real-time speech transcription, or compose thorough structured responses directly in the text editor.
+            </p>
+            <ul class="rules-list" style="padding-left: 0; list-style: none;">
+                <li style="display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px;">
+                    <i class="fa-solid fa-check-circle" style="color: var(--primary); font-size: 1.1rem; margin-top: 3px;"></i>
+                    <span><strong>Listen Aloud:</strong> Questions are articulated using browser speech synthesis with pause and stop controls.</span>
+                </li>
+                <li style="display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px;">
+                    <i class="fa-solid fa-check-circle" style="color: var(--primary); font-size: 1.1rem; margin-top: 3px;"></i>
+                    <span><strong>Editable Dictation:</strong> Dictate your thoughts aloud. Review and polish the transcript before submitting.</span>
+                </li>
+                <li style="display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px;">
+                    <i class="fa-solid fa-check-circle" style="color: var(--primary); font-size: 1.1rem; margin-top: 3px;"></i>
+                    <span><strong>Optional Video Monitoring:</strong> Activate local camera preview for personal poise and body language awareness without any permanent cloud recording.</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- Detailed Feedback Breakdown -->
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-tag">Objective Analytics</span>
+            <h2 class="section-title">Question-by-Question Deep Feedback</h2>
+            <p class="section-subtitle">
+                No generic encouragement. You get rigorous, actionable analysis backed by an objective 100-point rubric.
+            </p>
+        </div>
+
+        <div class="card-grid">
+            <div class="feature-card">
+                <div class="feature-icon" style="background: var(--success-bg); color: var(--success);"><i class="fa-solid fa-thumbs-up"></i></div>
+                <h3>Demonstrated Strengths</h3>
+                <p>Pinpoints the precise architectural patterns, accurate algorithms, or STAR structure that elevated your response.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon" style="background: var(--warning-bg); color: var(--warning);"><i class="fa-solid fa-lightbulb"></i></div>
+                <h3>Missing Concepts & Flaws</h3>
+                <p>Identifies production edge cases, security vulnerabilities, or omissions that an interviewer would catch.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon" style="background: var(--primary-light); color: var(--primary);"><i class="fa-solid fa-award"></i></div>
+                <h3>Benchmark Model Answer</h3>
+                <p>Examine a gold-standard response written at staff engineer / executive level to calibrate your standard of excellence.</p>
+            </div>
+        </div>
+
+        <!-- Call to Action Banner -->
+        <div class="form-card" style="margin-top: 60px; text-align: center; background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-card-alt) 100%);">
+            <h2 style="font-size: 2rem; margin-bottom: 12px;">Ready to Land Your Target Job Offer?</h2>
+            <p style="color: var(--text-secondary); max-width: 580px; margin: 0 auto 28px;">
+                Start practising immediately in guest mode or create a free profile to track your score progression over time.
+            </p>
+            <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+                <a href="{{ url_for('interview.setup') }}" class="btn btn-primary btn-lg">
+                    <i class="fa-solid fa-play"></i> Launch Your First Mock Interview
+                </a>
+                <a href="{{ url_for('auth.guest_mode') }}" class="btn btn-secondary btn-lg">
+                    <i class="fa-solid fa-user-clock"></i> Quick Guest Mode
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

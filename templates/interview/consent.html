@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Interview Instructions & Consent — AI Mock Interview{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 40px; padding-bottom: 60px;">
+    <div class="consent-box">
+        <div class="form-header">
+            <span class="section-tag">Readiness Protocol</span>
+            <h2>Interview Rules & Participant Consent</h2>
+            <p>Please review the simulation guidelines, scoring criteria, and audio/video privacy terms before beginning.</p>
+        </div>
+
+        <!-- Configuration Summary Table -->
+        <div style="background: var(--bg-card-alt); padding: 18px 24px; border-radius: var(--radius-md); margin-bottom: 24px; border: 1px solid var(--border-color);">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; font-size: 0.88rem;">
+                <div>
+                    <span style="color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase; font-weight: 700;">Target Role</span>
+                    <div style="font-weight: 700; color: var(--text-primary);">{{ interview.target_role }}</div>
+                </div>
+                <div>
+                    <span style="color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase; font-weight: 700;">Target Employer</span>
+                    <div style="font-weight: 700; color: var(--text-primary);">{{ interview.target_company }}</div>
+                </div>
+                <div>
+                    <span style="color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase; font-weight: 700;">Format & Difficulty</span>
+                    <div style="font-weight: 700; color: var(--text-primary);">{{ interview.interview_type }} ({{ interview.difficulty }})</div>
+                </div>
+                <div>
+                    <span style="color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase; font-weight: 700;">Total Questions</span>
+                    <div style="font-weight: 700; color: var(--primary);">{{ interview.question_count }} Questions</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Important Practice & Employment Disclaimer -->
+        <div class="consent-notice-card">
+            <i class="fa-solid fa-triangle-exclamation" style="color: var(--warning);"></i>
+            <div>
+                <strong>Simulation Notice & Practice Scope:</strong>
+                <p>
+                    This AI mock interview platform provides automated simulation and developmental practice feedback. Performance scores, readiness metrics, and model answers do not guarantee employment, recommendation, or selection by {{ interview.target_company }} or any other entity.
+                </p>
+            </div>
+        </div>
+
+        <!-- Procedural Guidelines -->
+        <h4 style="font-size: 1.05rem; font-weight: 700; margin-top: 24px; margin-bottom: 12px; color: var(--text-primary);">
+            Interview Protocol & Scoring
+        </h4>
+        <ul class="rules-list">
+            <li>
+                <strong>One Question at a Time:</strong> The AI interviewer presents exactly one question at a time. The subsequent question will be generated only after you submit your answer or elect to skip.
+            </li>
+            <li>
+                <strong>Answering Modalities:</strong> You may dictate answers via your microphone (Speech-to-Text) or type directly. Dictated transcripts can be freely edited before final submission.
+            </li>
+            <li>
+                <strong>Objective 100-Point Rubric:</strong> Each answer is judged on technical accuracy (or STAR structure for HR), reasoning, completeness, edge case mitigation, and depth.
+            </li>
+            <li>
+                <strong>Optional Camera Preview:</strong> Camera access is strictly voluntary for personal posture monitoring. Video is processed locally in your browser; no video is permanently stored on external servers. You can proceed without a camera at any time.
+            </li>
+            <li>
+                <strong>Ending the Interview:</strong> You can click "End Interview" at any time. Any answered questions will be scored and compiled into your final downloadable PDF report.
+            </li>
+        </ul>
+
+        <div style="margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+            <div style="display: flex; gap: 12px;">
+                <a href="{{ url_for('interview.setup') }}" class="btn btn-secondary">
+                    <i class="fa-solid fa-arrow-left"></i> Review Settings
+                </a>
+                <a href="{{ url_for('main.home') }}" class="btn btn-outline-nav">
+                    Cancel Interview
+                </a>
+            </div>
+
+            <button type="button" id="startInterviewBtn" class="btn btn-primary btn-lg">
+                <i class="fa-solid fa-circle-check"></i>
+                <span>I Agree and Start Interview</span>
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const startBtn = document.getElementById('startInterviewBtn');
+    startBtn.addEventListener('click', async () => {
+        startBtn.disabled = true;
+        startBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Preparing Interview Room...';
+
+        try {
+            const res = await window.apiFetch('/api/interviews/{{ interview.session_id }}/start', {
+                method: 'POST'
+            });
+
+            if (!res.ok) {
+                throw new Error("Failed to start session.");
+            }
+
+            window.location.href = "{{ url_for('interview.live', session_id=interview.session_id) }}";
+        } catch (err) {
+            console.error("Start failed:", err);
+            alert("Could not start interview session. Please try again.");
+            startBtn.disabled = false;
+            startBtn.innerHTML = '<i class="fa-solid fa-circle-check"></i> <span>I Agree and Start Interview</span>';
+        }
+    });
+});
+</script>
+{% endblock %}

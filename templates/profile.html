@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile — AI Mock Interview{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 40px; padding-bottom: 60px;">
+    <div class="form-card" style="max-width: 640px;">
+        <div class="form-header">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <div class="avatar" style="width: 54px; height: 54px; font-size: 1.5rem; background: var(--primary-gradient); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800;">
+                    {{ current_user.full_name[:1].upper() }}
+                </div>
+                <div>
+                    <h2>{{ current_user.full_name }}</h2>
+                    <p>{{ current_user.email }} &bull; Registered Candidate</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="score-banner-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 28px;">
+            <div class="score-kpi-card">
+                <span class="kpi-title">Total Interviews</span>
+                <div class="kpi-value">{{ stats.interviews_count }}</div>
+                <span class="kpi-subtitle">Simulations initiated</span>
+            </div>
+            <div class="score-kpi-card">
+                <span class="kpi-title">Completed Rounds</span>
+                <div class="kpi-value" style="color: var(--primary);">{{ stats.completed_count }}</div>
+                <span class="kpi-subtitle">Full evaluation reports</span>
+            </div>
+        </div>
+
+        <form action="{{ url_for('main.profile') }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 16px; color: var(--text-primary);">
+                Update Profile Details
+            </h4>
+
+            <div class="form-group">
+                <label for="full_name" class="form-label">Full Name</label>
+                <input type="text" id="full_name" name="full_name" class="form-control" value="{{ current_user.full_name }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address (Read-only)</label>
+                <input type="email" id="email" class="form-control" value="{{ current_user.email }}" disabled style="opacity: 0.7; cursor: not-allowed;">
+            </div>
+
+            <div class="form-group">
+                <label for="experience_level" class="form-label">Default Experience Category</label>
+                <select id="experience_level" name="experience_level" class="form-control">
+                    <option value="Fresher" {% if current_user.experience_level == 'Fresher' %}selected{% endif %}>Fresher / College Graduate</option>
+                    <option value="Experienced Professional" {% if current_user.experience_level == 'Experienced Professional' %}selected{% endif %}>Experienced Professional</option>
+                    <option value="Career Switcher" {% if current_user.experience_level == 'Career Switcher' %}selected{% endif %}>Career Switcher</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="margin-top: 24px;">
+                <label for="new_password" class="form-label">
+                    <span>Change Password</span>
+                    <span class="optional">Leave blank to keep current password</span>
+                </label>
+                <input type="password" id="new_password" name="new_password" class="form-control" placeholder="New password (min. 6 characters)">
+            </div>
+
+            <div style="margin-top: 28px; display: flex; justify-content: flex-end; gap: 12px;">
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Profile
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

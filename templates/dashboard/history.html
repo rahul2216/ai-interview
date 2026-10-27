@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Interview History — AI Mock Interview{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+        <div>
+            <h1 style="font-size: 2.2rem; font-weight: 800; color: var(--text-primary);">Interview History</h1>
+            <p style="color: var(--text-secondary); font-size: 1rem;">
+                Review past transcripts, feedback rubrics, and benchmark score evolutions.
+            </p>
+        </div>
+
+        <a href="{{ url_for('interview.setup') }}" class="btn btn-primary">
+            <i class="fa-solid fa-play"></i> Start New Interview
+        </a>
+    </div>
+
+    {% if is_guest %}
+        <div class="consent-notice-card" style="margin-bottom: 24px;">
+            <i class="fa-solid fa-triangle-exclamation" style="color: var(--warning);"></i>
+            <div>
+                <strong>Notice for Guest Users:</strong>
+                <p>These records belong to your current guest session. To prevent loss when closing your browser, <a href="{{ url_for('auth.register') }}">create an account to retain your historical records</a>.</p>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="history-table-card">
+        <div class="table-responsive">
+            <table class="custom-table" id="historyTable">
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Target Company & Designation</th>
+                        <th>Track</th>
+                        <th>Difficulty</th>
+                        <th>Score</th>
+                        <th>Duration</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in interviews %}
+                        <tr id="row-{{ item.session_id }}">
+                            <td>
+                                <strong>{{ item.created_at.strftime('%b %d, %Y') if item.created_at else 'Recent' }}</strong>
+                                <div style="font-size: 0.78rem; color: var(--text-muted);">{{ item.created_at.strftime('%H:%M UTC') if item.created_at else '' }}</div>
+                            </td>
+                            <td>
+                                <strong>{{ item.target_role }}</strong>
+                                <div style="font-size: 0.82rem; color: var(--primary); font-weight: 600;">{{ item.target_company }}</div>
+                            </td>
+                            <td><span class="live-badge badge-interview-type" style="font-size: 0.75rem;">{{ item.interview_type }}</span></td>
+                            <td><span class="live-badge badge-difficulty" style="font-size: 0.75rem;">{{ item.difficulty }}</span></td>
+                            <td>
+                                {% if item.status == 'completed' %}
+                                    <strong style="color: var(--primary); font-size: 1.05rem;">{{ "%.1f"|format(item.percentage_score) }}%</strong>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted);">{{ "%.0f"|format(item.total_score) }}/{{ "%.0f"|format(item.max_score) }}</div>
+                                {% else %}
+                                    <span style="color: var(--warning); font-size: 0.82rem; font-weight: 600;">Incomplete</span>
+                                {% endif %}
+                            </td>
+                            <td style="font-size: 0.88rem; color: var(--text-secondary);">
+                                {{ item.duration_formatted() }}
+                            </td>
+                            <td>
+                                <span class="status-badge {% if item.status == 'completed' %}status-correct{% else %}status-partially_correct{% endif %}">
+                                    {{ item.status.title() }}
+                                </span>
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 6px;">
+                                    {% if item.status == 'completed' %}
+                                        <a href="{{ url_for('interview.report', session_id=item.session_id) }}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.82rem;" title="View Evaluation Report">
+                                            <i class="fa-solid fa-chart-simple"></i> Report
+                                        </a>
+                                        <a href="{{ url_for('interview.download_pdf', session_id=item.session_id) }}" class="btn btn-icon" style="width: 32px; height: 32px; font-size: 0.82rem;" title="Download PDF">
+                                            <i class="fa-solid fa-file-pdf"></i>
+                                        </a>
+                                    {% else %}
+                                        <a href="{{ url_for('interview.live', session_id=item.session_id) }}" class="btn btn-primary" style="padding: 6px 12px; font-size: 0.82rem;" title="Resume Session">
+                                            <i class="fa-solid fa-play"></i> Resume
+                                        </a>
+                                    {% endif %}
+
+                                    <a href="{{ url_for('interview.repeat', session_id=item.session_id) }}" class="btn btn-icon" style="width: 32px; height: 32px; font-size: 0.82rem;" title="Re-take with identical settings">
+                                        <i class="fa-solid fa-rotate-right"></i>
+                                    </a>
+
+                                    <button type="button" class="btn btn-icon text-danger" style="width: 32px; height: 32px; font-size: 0.82rem;" title="Delete this session" onclick="deleteInterviewSession('{{ item.session_id }}');">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 48px; color: var(--text-muted);">
+                                <i class="fa-solid fa-inbox" style="font-size: 2rem; margin-bottom: 12px; display: block; opacity: 0.5;"></i>
+                                No previous interview sessions found. <a href="{{ url_for('interview.setup') }}">Start your first simulation now</a>.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function deleteInterviewSession(sessionId) {
+    if (!confirm("Are you sure you want to permanently delete this interview session and all associated answer feedback?")) {
+        return;
+    }
+
+    try {
+        const res = await window.apiFetch(`/api/interviews/${sessionId}`, {
+            method: 'DELETE'
+        });
+
+        if (!res.ok) throw new Error("Failed to delete interview.");
+
+        const row = document.getElementById(`row-${sessionId}`);
+        if (row) {
+            row.style.opacity = '0';
+            row.style.transition = 'opacity 0.3s ease';
+            setTimeout(() => row.remove(), 300);
+        }
+    } catch (err) {
+        console.error("Delete failed:", err);
+        alert("Could not delete session. Please try again.");
+    }
+}
+</script>
+{% endblock %}

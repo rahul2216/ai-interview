@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Interview Tracks & Competencies — AI Mock Interview{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 40px; padding-bottom: 60px;">
+    <div class="section-header">
+        <span class="section-tag">Career Acceleration Tracks</span>
+        <h1 class="section-title">Professional Interview Tracks</h1>
+        <p class="section-subtitle">
+            Select a specialized format tailored to your target hiring pipeline. Each track employs distinct evaluation rubrics.
+        </p>
+    </div>
+
+    <div class="card-grid" style="margin-bottom: 40px;">
+        <!-- Technical Track -->
+        <div class="feature-card {% if active_tab == 'technical' %}highlight{% endif %}" style="border-top: 4px solid var(--primary);">
+            <div class="feature-icon"><i class="fa-solid fa-microchip"></i></div>
+            <h3>Technical Interview</h3>
+            <p>Evaluates domain expertise, systems design, concurrency, database performance, API architectures, and debugging intuition.</p>
+            <div style="margin-bottom: 16px; background: var(--bg-card-alt); padding: 12px; border-radius: var(--radius-md);">
+                <strong style="font-size: 0.82rem; color: var(--text-primary); text-transform: uppercase;">Rubric Focus:</strong>
+                <p style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 4px;">Correctness (40%), Understanding (25%), Completeness (15%), Reasoning (10%), Examples (10%).</p>
+            </div>
+            <a href="{{ url_for('interview.setup', type='technical') }}" class="btn btn-primary" style="margin-top: auto;">
+                <i class="fa-solid fa-play"></i> Start Technical Interview
+            </a>
+        </div>
+
+        <!-- HR & Behavioral Track -->
+        <div class="feature-card {% if active_tab == 'hr' %}highlight{% endif %}" style="border-top: 4px solid var(--accent);">
+            <div class="feature-icon" style="background: var(--accent-light); color: var(--accent);"><i class="fa-solid fa-user-tie"></i></div>
+            <h3>HR & Behavioral (STAR)</h3>
+            <p>Assesses cultural fit, cross-functional collaboration, ownership, conflict management, and high-pressure adaptability using the STAR method.</p>
+            <div style="margin-bottom: 16px; background: var(--bg-card-alt); padding: 12px; border-radius: var(--radius-md);">
+                <strong style="font-size: 0.82rem; color: var(--text-primary); text-transform: uppercase;">Rubric Focus:</strong>
+                <p style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 4px;">Relevance (30%), Clarity (25%), STAR Structure (20%), Reasoning (15%), Impact & Metrics (10%).</p>
+            </div>
+            <a href="{{ url_for('interview.setup', type='hr') }}" class="btn btn-primary" style="margin-top: auto;">
+                <i class="fa-solid fa-play"></i> Start HR Interview
+            </a>
+        </div>
+
+        <!-- Coding Track -->
+        <div class="feature-card {% if active_tab == 'coding' %}highlight{% endif %}" style="border-top: 4px solid var(--success);">
+            <div class="feature-icon" style="background: var(--success-bg); color: var(--success);"><i class="fa-solid fa-laptop-code"></i></div>
+            <h3>Coding & Problem-Solving</h3>
+            <p>Hands-on coding challenges testing algorithmic efficiency, edge cases, time/space complexity analysis, and clean code hygiene.</p>
+            <div style="margin-bottom: 16px; background: var(--bg-card-alt); padding: 12px; border-radius: var(--radius-md);">
+                <strong style="font-size: 0.82rem; color: var(--text-primary); text-transform: uppercase;">Rubric Focus:</strong>
+                <p style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 4px;">Logic (30%), Correctness (25%), Complexity (20%), Edge Cases (15%), Quality (10%).</p>
+            </div>
+            <a href="{{ url_for('interview.setup', type='coding') }}" class="btn btn-primary" style="margin-top: auto;">
+                <i class="fa-solid fa-play"></i> Start Coding Interview
+            </a>
+        </div>
+
+        <!-- Technical + HR Combo -->
+        <div class="feature-card" style="border-top: 4px solid var(--warning);">
+            <div class="feature-icon" style="background: var(--warning-bg); color: var(--warning);"><i class="fa-solid fa-network-wired"></i></div>
+            <h3>Technical + HR Combo</h3>
+            <p>A balanced interview session mirroring the modern hiring round: alternates between deep architectural inquiries and team leadership scenarios.</p>
+            <div style="margin-bottom: 16px; background: var(--bg-card-alt); padding: 12px; border-radius: var(--radius-md);">
+                <strong style="font-size: 0.82rem; color: var(--text-primary); text-transform: uppercase;">Best For:</strong>
+                <p style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 4px;">Full-loop rounds for full-stack developers, engineering leads, and technical product managers.</p>
+            </div>
+            <a href="{{ url_for('interview.setup', type='tech_hr') }}" class="btn btn-secondary" style="margin-top: auto;">
+                <i class="fa-solid fa-play"></i> Start Combined Interview
+            </a>
+        </div>
+
+        <!-- Company-Specific Simulation -->
+        <div class="feature-card" style="border-top: 4px solid var(--info);">
+            <div class="feature-icon" style="background: var(--info-bg); color: var(--info);"><i class="fa-solid fa-city"></i></div>
+            <h3>Company-Specific Simulation</h3>
+            <p>Simulate interview questions attuned to the engineering culture, product challenges, and scale metrics of your target employer.</p>
+            <div style="margin-bottom: 16px; background: var(--bg-card-alt); padding: 12px; border-radius: var(--radius-md);">
+                <strong style="font-size: 0.82rem; color: var(--text-primary); text-transform: uppercase;">Target Employers:</strong>
+                <p style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 4px;">Google, Microsoft, Amazon, Meta, Stripe, fast-growing tech scaleups, and enterprise consultancies.</p>
+            </div>
+            <a href="{{ url_for('interview.setup', type='company') }}" class="btn btn-secondary" style="margin-top: auto;">
+                <i class="fa-solid fa-play"></i> Start Company Simulation
+            </a>
+        </div>
+
+        <!-- Behavioral Deep Dive -->
+        <div class="feature-card" style="border-top: 4px solid var(--navy-500);">
+            <div class="feature-icon" style="background: var(--navy-100); color: var(--navy-700);"><i class="fa-solid fa-comments"></i></div>
+            <h3>Behavioral Deep Dive</h3>
+            <p>Rigorous behavioral scrutiny covering failure post-mortems, tough deadlines, technical disagreements, and leadership under ambiguity.</p>
+            <div style="margin-bottom: 16px; background: var(--bg-card-alt); padding: 12px; border-radius: var(--radius-md);">
+                <strong style="font-size: 0.82rem; color: var(--text-primary); text-transform: uppercase;">Key Skills:</strong>
+                <p style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 4px;">Influence without authority, handling technical debt, executive updates, and crisis management.</p>
+            </div>
+            <a href="{{ url_for('interview.setup', type='behavioral') }}" class="btn btn-secondary" style="margin-top: auto;">
+                <i class="fa-solid fa-play"></i> Start Behavioral Interview
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

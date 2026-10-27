@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+{% block title %}Interview Evaluation Report — AI Mock Interview{% endblock %}
+
+{% block content %}
+<div class="report-container">
+    <!-- Header Card -->
+    <div class="report-header-card">
+        <div class="report-title-area">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                <span class="live-badge badge-interview-type">{{ interview.interview_type }}</span>
+                <span class="live-badge badge-difficulty">{{ interview.difficulty }}</span>
+                <span class="disclaimer-badge">Completed Session</span>
+            </div>
+            <h1>Performance Report</h1>
+            <p>
+                Candidate: <strong>{{ interview.candidate_name }}</strong> &bull; Target: <strong>{{ interview.target_role }}</strong> at <strong>{{ interview.target_company }}</strong>
+            </p>
+        </div>
+
+        <div class="report-actions">
+            <a href="{{ url_for('interview.download_pdf', session_id=interview.session_id) }}" class="btn btn-primary" title="Export as PDF Document">
+                <i class="fa-solid fa-file-pdf"></i> Download PDF Report
+            </a>
+            <a href="{{ url_for('interview.repeat', session_id=interview.session_id) }}" class="btn btn-secondary">
+                <i class="fa-solid fa-rotate-right"></i> Take Another Interview
+            </a>
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-nav">
+                <i class="fa-solid fa-chart-line"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary KPI Cards -->
+    <div class="score-banner-grid">
+        <div class="score-kpi-card highlight">
+            <span class="kpi-title">Overall Score</span>
+            <div class="kpi-value" style="color: var(--primary);">{{ "%.1f"|format(interview.percentage_score) }}%</div>
+            <span class="kpi-subtitle">{{ "%.1f"|format(interview.total_score) }} / {{ "%.1f"|format(interview.max_score) }} Points</span>
+        </div>
+
+        <div class="score-kpi-card">
+            <span class="kpi-title">Readiness Level</span>
+            <div class="kpi-value" style="font-size: 1.45rem; color: {% if interview.percentage_score >= 80 %}var(--success){% elif interview.percentage_score >= 50 %}var(--warning){% else %}var(--danger){% endif %};">
+                {{ interview.readiness_estimate }}
+            </div>
+            <span class="kpi-subtitle">Practice Benchmark</span>
+        </div>
+
+        <div class="score-kpi-card">
+            <span class="kpi-title">Interview Duration</span>
+            <div class="kpi-value" style="font-size: 1.6rem;">{{ interview.duration_formatted() }}</div>
+            <span class="kpi-subtitle">{{ stats.total }} Total Questions</span>
+        </div>
+
+        <div class="score-kpi-card">
+            <span class="kpi-title">Question Breakdown</span>
+            <div style="display: flex; gap: 8px; margin-top: 6px; font-weight: 700; font-size: 0.95rem;">
+                <span style="color: var(--success);" title="Correct">{{ stats.correct }} C</span> &bull;
+                <span style="color: var(--warning);" title="Partially Correct">{{ stats.partially_correct }} P</span> &bull;
+                <span style="color: var(--danger);" title="Incorrect">{{ stats.incorrect }} I</span> &bull;
+                <span style="color: var(--text-muted);" title="Skipped">{{ stats.skipped }} S</span>
+            </div>
+            <span class="kpi-subtitle">{{ stats.answered }} Answered &bull; {{ stats.skipped }} Skipped</span>
+        </div>
+    </div>
+
+    <!-- Transparent Readiness Disclaimer -->
+    <div class="consent-notice-card" style="margin-bottom: 30px;">
+        <i class="fa-solid fa-circle-info"></i>
+        <p>
+            <strong>Readiness Estimate Scope:</strong> This estimate reflects rubric adherence across this specific session's questions. It serves as an objective practice benchmark to guide your revision and does not guarantee job offers or hiring selection.
+        </p>
+    </div>
+
+    <!-- Filter Buttons Bar -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+        <h3 style="font-size: 1.4rem; font-weight: 800; color: var(--text-primary);">Question-by-Question Deep Feedback</h3>
+        <div style="display: flex; gap: 8px;">
+            <button class="btn btn-secondary filter-btn active" data-filter="all">All ({{ stats.total }})</button>
+            <button class="btn btn-secondary filter-btn" data-filter="wrong" style="color: var(--danger);">Review Flaws ({{ stats.incorrect + stats.partially_correct + stats.skipped }})</button>
+            <button class="btn btn-secondary filter-btn" data-filter="correct" style="color: var(--success);">Strong ({{ stats.correct }})</button>
+        </div>
+    </div>
+
+    <!-- Questions Detailed List -->
+    <div class="review-section">
+        {% for q in interview.questions %}
+            {% set ans = q.answer %}
+            {% set status = ans.correctness_status if ans else 'skipped' %}
+            <div class="review-card open question-card-item" data-status="{{ status }}">
+                <div class="review-card-header" onclick="this.parentElement.classList.toggle('open');">
+                    <div style="flex: 1; padding-right: 16px;">
+                        <div class="q-badge-row">
+                            <span class="status-badge status-{{ status }}">
+                                {% if status == 'correct' %}
+                                    <i class="fa-solid fa-check"></i> Mastered
+                                {% elif status == 'partially_correct' %}
+                                    <i class="fa-solid fa-triangle-exclamation"></i> Partially Correct
+                                {% elif status == 'incorrect' %}
+                                    <i class="fa-solid fa-xmark"></i> Needs Work
+                                {% else %}
+                                    <i class="fa-solid fa-forward"></i> Skipped
+                                {% endif %}
+                            </span>
+                            <span style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted);">
+                                Q{{ q.sequence_number }} &bull; Topic: <strong>{{ q.topic }}</strong> ({{ q.difficulty }})
+                            </span>
+                        </div>
+                        <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); line-height: 1.4;">
+                            {{ q.question_text }}
+                        </h4>
+                    </div>
+
+                    <div style="text-align: right; min-width: 90px;">
+                        <span style="font-size: 1.4rem; font-weight: 800; color: {% if status == 'correct' %}var(--success){% elif status == 'partially_correct' %}var(--warning){% else %}var(--danger){% endif %};">
+                            {{ "%.0f"|format(ans.score) if ans else '0' }}
+                        </span>
+                        <span style="font-size: 0.82rem; color: var(--text-muted);">/100</span>
+                    </div>
+                </div>
+
+                <div class="review-card-body">
+                    <!-- Candidate's Response -->
+                    <div style="margin-bottom: 18px;">
+                        <span style="font-size: 0.78rem; text-transform: uppercase; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">
+                            Your Submitted Response
+                        </span>
+                        <div style="background: var(--bg-card-alt); padding: 14px 18px; border-radius: var(--radius-md); font-size: 0.94rem; color: var(--text-primary); line-height: 1.6; border: 1px solid var(--border-color);">
+                            {{ ans.answer_text if (ans and ans.answer_text) else '[Question was skipped by candidate]' }}
+                        </div>
+                    </div>
+
+                    {% if ans and ans.feedback %}
+                        {% set fb = ans.feedback %}
+                        <!-- Rubric Breakdown -->
+                        <div class="feedback-grid">
+                            <!-- Strengths -->
+                            <div class="feedback-block" style="border-left: 3px solid var(--success);">
+                                <h5><i class="fa-solid fa-circle-check" style="color: var(--success);"></i> What Was Done Well</h5>
+                                <ul>
+                                    {% for item in fb.get('strengths', []) %}
+                                        <li>{{ item }}</li>
+                                    {% else %}
+                                        <li>Direct engagement with the question topic.</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+
+                            <!-- Missing / Mistakes -->
+                            <div class="feedback-block" style="border-left: 3px solid var(--danger);">
+                                <h5><i class="fa-solid fa-circle-exclamation" style="color: var(--danger);"></i> What Was Missing or Needs Polish</h5>
+                                <ul>
+                                    {% for item in fb.get('missing_concepts', []) %}
+                                        <li>{{ item }}</li>
+                                    {% endfor %}
+                                    {% for item in fb.get('mistakes', []) %}
+                                        <li>{{ item }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Explanation of Scoring -->
+                        <div style="margin-bottom: 16px; background: var(--bg-card-alt); padding: 14px 18px; border-radius: var(--radius-md);">
+                            <strong style="font-size: 0.82rem; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 4px;">
+                                Evaluation Summary & Rationale
+                            </strong>
+                            <p style="font-size: 0.92rem; color: var(--text-secondary); line-height: 1.5;">
+                                {{ fb.get('explanation', 'Clear communication with room for stronger edge cases.') }}
+                            </p>
+                        </div>
+
+                        <!-- Ideal / Model Answer -->
+                        <div class="model-answer-box">
+                            <h5><i class="fa-solid fa-award"></i> Benchmark Model Answer</h5>
+                            <p>{{ fb.get('model_answer', '') }}</p>
+                        </div>
+
+                        <!-- Improved Answer Version -->
+                        {% if fb.get('improved_answer') %}
+                            <div class="model-answer-box" style="background: var(--accent-light); border-left-color: var(--accent); margin-top: 12px;">
+                                <h5 style="color: var(--accent);"><i class="fa-solid fa-wand-magic-sparkles"></i> Polished Candidate Answer (Elevated Version)</h5>
+                                <p>{{ fb.get('improved_answer') }}</p>
+                            </div>
+                        {% endif %}
+
+                        <!-- Actionable Improvement Tips -->
+                        {% if fb.get('improvement_tips') %}
+                            <div style="margin-top: 16px; padding: 14px 18px; border-radius: var(--radius-md); background: var(--bg-surface); border: 1px solid var(--border-color);">
+                                <strong style="font-size: 0.82rem; text-transform: uppercase; color: var(--primary); display: block; margin-bottom: 8px;">
+                                    <i class="fa-solid fa-arrow-trend-up"></i> Actionable Improvement Tips
+                                </strong>
+                                <ul style="list-style: disc; padding-left: 20px; font-size: 0.88rem; color: var(--text-secondary);">
+                                    {% for tip in fb.get('improvement_tips', []) %}
+                                        <li>{{ tip }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Final Next Steps CTA -->
+    <div class="form-card" style="margin-top: 40px; text-align: center;">
+        <h3 style="font-size: 1.4rem; margin-bottom: 10px;">Recommended Practice Strategy</h3>
+        <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto 24px;">
+            Target your weakest competency topics identified above, then repeat the simulation at Adaptive difficulty to reinforce your muscle memory.
+        </p>
+        <div style="display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;">
+            <a href="{{ url_for('interview.repeat', session_id=interview.session_id) }}" class="btn btn-primary btn-lg">
+                <i class="fa-solid fa-rotate-right"></i> Practise Weak Areas
+            </a>
+            <a href="{{ url_for('interview.download_pdf', session_id=interview.session_id) }}" class="btn btn-secondary btn-lg">
+                <i class="fa-solid fa-file-pdf"></i> Download PDF Report
+            </a>
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-nav btn-lg">
+                <i class="fa-solid fa-chart-line"></i> View Progress Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const cards = document.querySelectorAll('.question-card-item');
+
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const filter = btn.getAttribute('data-filter');
+            cards.forEach(card => {
+                const status = card.getAttribute('data-status');
+                if (filter === 'all') {
+                    card.style.display = 'block';
+                } else if (filter === 'wrong') {
+                    if (status === 'incorrect' || status === 'partially_correct' || status === 'skipped') {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                } else if (filter === 'correct') {
+                    if (status === 'correct') {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

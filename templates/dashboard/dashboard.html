@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}Performance Dashboard — AI Mock Interview{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; flex-wrap: wrap; gap: 16px;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <h1 style="font-size: 2.2rem; font-weight: 800; color: var(--text-primary);">Performance Dashboard</h1>
+                {% if is_guest %}
+                    <span class="live-badge badge-difficulty">Temporary Guest Mode</span>
+                {% endif %}
+            </div>
+            <p style="color: var(--text-secondary); font-size: 1rem;">
+                Track your interview competency trajectories, strongest subjects, and readiness milestones.
+            </p>
+        </div>
+
+        <div style="display: flex; gap: 12px;">
+            <a href="{{ url_for('interview.setup') }}" class="btn btn-primary">
+                <i class="fa-solid fa-play"></i> New Mock Interview
+            </a>
+            <a href="{{ url_for('main.history') }}" class="btn btn-secondary">
+                <i class="fa-solid fa-clock-rotate-left"></i> Full History
+            </a>
+        </div>
+    </div>
+
+    {% if is_guest %}
+        <div class="consent-notice-card" style="margin-bottom: 28px; background: var(--warning-bg); border-color: var(--warning-border);">
+            <i class="fa-solid fa-triangle-exclamation" style="color: var(--warning);"></i>
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 12px;">
+                <div>
+                    <strong style="color: var(--text-primary);">Temporary Guest Mode Active:</strong>
+                    <p style="margin-top: 4px; color: var(--text-secondary);">Your current simulation history is stored for this browser session only. Create an account to permanently safeguard your scores and generate authenticated reports.</p>
+                </div>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary" style="white-space: nowrap;">
+                    <i class="fa-solid fa-user-plus"></i> Save My Results Free
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- KPI Summary Row -->
+    <div class="score-banner-grid">
+        <div class="score-kpi-card highlight">
+            <span class="kpi-title">Completed Simulations</span>
+            <div class="kpi-value" style="color: var(--primary);">{{ total_completed }}</div>
+            <span class="kpi-subtitle">{{ interviews|length }} Total Started</span>
+        </div>
+
+        <div class="score-kpi-card">
+            <span class="kpi-title">Average Score</span>
+            <div class="kpi-value">{{ avg_score }}%</div>
+            <span class="kpi-subtitle">Across completed rounds</span>
+        </div>
+
+        <div class="score-kpi-card">
+            <span class="kpi-title">Personal Best</span>
+            <div class="kpi-value" style="color: var(--success);">{{ highest_score }}%</div>
+            <span class="kpi-subtitle">Peak simulation score</span>
+        </div>
+
+        <div class="score-kpi-card">
+            <span class="kpi-title">Primary Focus Track</span>
+            <div class="kpi-value" style="font-size: 1.25rem;">
+                {% if type_counts %}
+                    {{ type_counts|sort(attribute=1, reverse=true)|first|first }}
+                {% else %}
+                    Technical
+                {% endif %}
+            </div>
+            <span class="kpi-subtitle">Most practiced interview format</span>
+        </div>
+    </div>
+
+    <!-- Competencies & Formats Grid -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 36px;">
+        <!-- Strengths & Focus Areas -->
+        <div class="feature-card">
+            <h3 style="font-size: 1.15rem; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-chart-pie text-primary"></i> Identified Topic Competencies
+            </h3>
+
+            {% if strong_topics or weak_topics %}
+                <div style="margin-bottom: 16px;">
+                    <strong style="font-size: 0.82rem; text-transform: uppercase; color: var(--success); display: block; margin-bottom: 6px;">
+                        <i class="fa-solid fa-check-double"></i> Strongest Mastery Areas (&ge;75%)
+                    </strong>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        {% for st in strong_topics %}
+                            <span class="status-badge status-correct">{{ st.topic }} ({{ "%.0f"|format(st.average_score) }}%)</span>
+                        {% else %}
+                            <span style="font-size: 0.85rem; color: var(--text-muted);">Complete more questions to surface top competencies.</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div>
+                    <strong style="font-size: 0.82rem; text-transform: uppercase; color: var(--danger); display: block; margin-bottom: 6px;">
+                        <i class="fa-solid fa-arrow-trend-up"></i> High-Priority Growth Areas (&lt;70%)
+                    </strong>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        {% for wt in weak_topics %}
+                            <span class="status-badge status-incorrect">{{ wt.topic }} ({{ "%.0f"|format(wt.average_score) }}%)</span>
+                        {% else %}
+                            <span style="font-size: 0.85rem; color: var(--text-muted);">No weak competencies recorded. Great consistency!</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% else %}
+                <p style="color: var(--text-secondary); font-size: 0.92rem;">
+                    Perform additional mock interviews to unlock granular breakdowns of your strongest architectural and behavioral competencies.
+                </p>
+                <a href="{{ url_for('interview.setup') }}" class="btn btn-secondary" style="margin-top: 14px; align-self: flex-start;">
+                    Start a Practice Session
+                </a>
+            {% endif %}
+        </div>
+
+        <!-- Format Distribution -->
+        <div class="feature-card">
+            <h3 style="font-size: 1.15rem; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-layer-group text-primary"></i> Simulation Tracks Completed
+            </h3>
+
+            {% if type_counts %}
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    {% for itype, count in type_counts.items() %}
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.88rem; font-weight: 600; margin-bottom: 4px;">
+                                <span>{{ itype }}</span>
+                                <span>{{ count }} session(s)</span>
+                            </div>
+                            <div class="progress-track">
+                                <div class="progress-fill" style="width: {{ (count / total_completed * 100)|round }}%;"></div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p style="color: var(--text-secondary); font-size: 0.92rem;">
+                    No completed sessions yet. Launch your first mock interview to populate your tracks distribution.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Interviews Table -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 1.35rem; font-weight: 800; color: var(--text-primary);">Recent Interview Sessions</h3>
+        <a href="{{ url_for('main.history') }}" style="font-size: 0.9rem; font-weight: 700;">View All History &rarr;</a>
+    </div>
+
+    <div class="history-table-card">
+        <div class="table-responsive">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Target Role & Company</th>
+                        <th>Format</th>
+                        <th>Difficulty</th>
+                        <th>Score</th>
+                        <th>Readiness</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in interviews %}
+                        <tr>
+                            <td>{{ item.created_at.strftime('%b %d, %Y') if item.created_at else 'Recent' }}</td>
+                            <td>
+                                <strong>{{ item.target_role }}</strong>
+                                <div style="font-size: 0.82rem; color: var(--text-muted);">{{ item.target_company }}</div>
+                            </td>
+                            <td><span class="live-badge badge-interview-type" style="font-size: 0.76rem;">{{ item.interview_type }}</span></td>
+                            <td><span class="live-badge badge-difficulty" style="font-size: 0.76rem;">{{ item.difficulty }}</span></td>
+                            <td>
+                                {% if item.status == 'completed' %}
+                                    <strong style="color: var(--primary);">{{ "%.1f"|format(item.percentage_score) }}%</strong>
+                                {% else %}
+                                    <span style="color: var(--warning); font-size: 0.84rem;">Incomplete</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="status-badge {% if item.percentage_score >= 80 %}status-correct{% elif item.percentage_score >= 50 %}status-partially_correct{% else %}status-incorrect{% endif %}">
+                                    {{ item.readiness_estimate if item.status == 'completed' else 'In Progress' }}
+                                </span>
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 8px;">
+                                    {% if item.status == 'completed' %}
+                                        <a href="{{ url_for('interview.report', session_id=item.session_id) }}" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.8rem;">
+                                            <i class="fa-solid fa-file-lines"></i> Report
+                                        </a>
+                                    {% else %}
+                                        <a href="{{ url_for('interview.live', session_id=item.session_id) }}" class="btn btn-primary" style="padding: 5px 10px; font-size: 0.8rem;">
+                                            <i class="fa-solid fa-play"></i> Resume
+                                        </a>
+                                    {% endif %}
+                                    <a href="{{ url_for('interview.repeat', session_id=item.session_id) }}" class="btn btn-icon" title="Repeat with same settings" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                        <i class="fa-solid fa-rotate-right"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 36px; color: var(--text-muted);">
+                                No mock interview sessions on record. <a href="{{ url_for('interview.setup') }}">Start your first interview</a>.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

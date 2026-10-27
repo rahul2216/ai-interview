@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}Live Session: {{ interview.target_role }} — AI Mock Interview{% endblock %}
+
+{% block content %}
+<div class="live-interview-wrapper">
+    <!-- Topbar: Status, Progress, and Interview Info -->
+    <div class="live-topbar">
+        <div class="live-meta">
+            <span class="live-badge badge-interview-type">
+                <i class="fa-solid fa-briefcase"></i> {{ interview.interview_type }}
+            </span>
+            <span class="live-badge badge-difficulty">
+                <i class="fa-solid fa-gauge-high"></i> {{ interview.difficulty }}
+            </span>
+            <span style="font-size: 0.88rem; font-weight: 700; color: var(--text-primary);">
+                {{ interview.target_role }} @ {{ interview.target_company }}
+            </span>
+        </div>
+
+        <div class="live-progress-container">
+            <div class="progress-labels">
+                <span>Question <strong id="currentSeqText">1</strong> of <strong id="totalQuestionsText">{{ interview.question_count }}</strong></span>
+                <span id="progressPercentText">0% Completed</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" id="interviewProgressFill" style="width: 0%;"></div>
+            </div>
+        </div>
+
+        <div>
+            <button id="endInterviewBtn" class="btn btn-outline-nav" style="color: var(--danger); border-color: rgba(220, 38, 38, 0.3);">
+                <i class="fa-solid fa-door-open"></i> End Interview
+            </button>
+        </div>
+    </div>
+
+    <!-- Retry / Network Error Banner -->
+    <div id="retryBanner" class="alert alert-warning" style="display: none; margin-bottom: 20px; align-items: center; justify-content: space-between;">
+        <div class="alert-content">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span class="retry-text">Network or evaluation hiccup. Your response is safely preserved.</span>
+        </div>
+        <button class="btn btn-primary retry-btn" style="padding: 6px 14px; font-size: 0.85rem;">
+            <i class="fa-solid fa-rotate-right"></i> Retry Submission
+        </button>
+    </div>
+
+    <!-- Live Workspace Grid -->
+    <div class="live-grid">
+        <!-- Main Column: Question & Input Area -->
+        <div class="live-main-card">
+            <div class="question-header">
+                <div>
+                    <span class="question-tag" id="questionTopicBadge">Competency Question</span>
+                </div>
+                <div class="question-audio-controls">
+                    <span class="audio-status-pill" id="audioPlayingPill" style="display: none;">
+                        <span class="pulse-dot" style="background-color: var(--primary);"></span> Reading Question...
+                    </span>
+                    <button id="readAloudBtn" class="btn-icon" title="Read Question Aloud">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </button>
+                    <button id="stopAudioBtn" class="btn-icon" title="Stop Audio Immediately">
+                        <i class="fa-solid fa-stop"></i>
+                    </button>
+                    <button id="toggleVoiceQuestionsBtn" class="btn btn-secondary active" style="padding: 6px 12px; font-size: 0.82rem;">
+                        <i class="fa-solid fa-volume-high"></i> Voice Questions: ON
+                    </button>
+                </div>
+            </div>
+
+            <!-- Question Text Display -->
+            <div class="question-display">
+                <p class="question-text" id="questionContentText">
+                    Generating your tailored interview question...
+                </p>
+            </div>
+
+            <!-- Answer Section -->
+            <div class="live-input-area">
+                <div class="input-mode-tabs">
+                    <button type="button" id="modeTextBtn" class="tab-btn active">
+                        <i class="fa-solid fa-align-left"></i> Structured Prose
+                    </button>
+                    <button type="button" id="modeCodeBtn" class="tab-btn">
+                        <i class="fa-solid fa-code"></i> Code / Algorithm Logic
+                    </button>
+                </div>
+
+                <!-- Dictation / Speech Recognition Control -->
+                <div class="speech-panel">
+                    <div class="speech-status">
+                        <button type="button" id="micToggleBtn" class="mic-btn" title="Start Microphone (Dictate Answer)">
+                            <i class="fa-solid fa-microphone"></i>
+                        </button>
+                        <div>
+                            <div id="micStatusText">Click microphone to speak your response (auto-transcribing)</div>
+                            <small style="color: var(--text-muted); font-size: 0.78rem;">Dictation transcripts appear directly below and are completely editable.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Textarea for Answer -->
+                <textarea id="answerText" class="answer-textarea"
+                          placeholder="Type or dictate your answer here. Provide specific reasoning, architectural trade-offs, and examples..."></textarea>
+
+                <!-- Actions Bar -->
+                <div class="live-actions">
+                    <button type="button" id="skipQuestionBtn" class="btn btn-secondary">
+                        <i class="fa-solid fa-forward"></i> Skip Question
+                    </button>
+
+                    <div class="live-actions-right">
+                        <button type="button" id="submitAnswerBtn" class="btn btn-primary btn-lg">
+                            <span>Submit Answer & Continue</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar: Camera Preview & Evaluation Standards -->
+        <div class="live-sidebar">
+            <!-- Camera Card -->
+            <div class="camera-card">
+                <div class="camera-header">
+                    <h4><i class="fa-solid fa-camera"></i> Optional Video Preview</h4>
+                    <span id="cameraStatusBadge" class="status-badge status-skipped">Camera Off (Optional)</span>
+                </div>
+
+                <div class="video-viewport">
+                    <video id="cameraVideo" playsinline autoplay muted></video>
+                    <div class="camera-placeholder" id="cameraPlaceholder">
+                        <i class="fa-solid fa-video-slash" style="font-size: 2.2rem; margin-bottom: 10px; color: var(--navy-500);"></i>
+                        <p>Camera is disabled by default.</p>
+                        <small>Enable for personal posture and poise practice.</small>
+                    </div>
+                </div>
+
+                <div class="camera-controls-bar">
+                    <button type="button" id="cameraToggleBtn" class="btn btn-primary" style="width: 100%; font-size: 0.85rem;">
+                        <i class="fa-solid fa-video"></i> Enable Camera Preview
+                    </button>
+                </div>
+
+                <p class="camera-note">
+                    <i class="fa-solid fa-shield-halved"></i> <strong>Privacy Assurance:</strong> Video preview runs entirely inside your local browser. Video frames are never recorded, analyzed for pseudo-scientific eye-tracking, or retained on servers.
+                </p>
+            </div>
+
+            <!-- Rubric Guide Sidebar -->
+            <div class="sidebar-info-card">
+                <h4><i class="fa-solid fa-scale-balanced text-primary"></i> Scoring Rubric Focus</h4>
+                <div class="rubric-pill-list">
+                    {% if 'coding' in interview.interview_type.lower() %}
+                        <div class="rubric-pill"><span>Algorithmic Logic</span><strong>30 pts</strong></div>
+                        <div class="rubric-pill"><span>Correctness</span><strong>25 pts</strong></div>
+                        <div class="rubric-pill"><span>Time & Space Complexity</span><strong>20 pts</strong></div>
+                        <div class="rubric-pill"><span>Edge Cases & Resilience</span><strong>15 pts</strong></div>
+                        <div class="rubric-pill"><span>Code Readability & Style</span><strong>10 pts</strong></div>
+                    {% elif 'hr' in interview.interview_type.lower() or 'behavioral' in interview.interview_type.lower() %}
+                        <div class="rubric-pill"><span>Relevance to Role</span><strong>30 pts</strong></div>
+                        <div class="rubric-pill"><span>Communication Clarity</span><strong>25 pts</strong></div>
+                        <div class="rubric-pill"><span>STAR Structure</span><strong>20 pts</strong></div>
+                        <div class="rubric-pill"><span>Reasoning & Problem-Solving</span><strong>15 pts</strong></div>
+                        <div class="rubric-pill"><span>Personal Contribution & Metrics</span><strong>10 pts</strong></div>
+                    {% else %}
+                        <div class="rubric-pill"><span>Technical Correctness</span><strong>40 pts</strong></div>
+                        <div class="rubric-pill"><span>Conceptual Understanding</span><strong>25 pts</strong></div>
+                        <div class="rubric-pill"><span>Completeness of Solution</span><strong>15 pts</strong></div>
+                        <div class="rubric-pill"><span>Reasoning & Trade-Offs</span><strong>10 pts</strong></div>
+                        <div class="rubric-pill"><span>Production Examples</span><strong>10 pts</strong></div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Submitting / Evaluating Overlay Modal -->
+<div id="submittingOverlay" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 2000; display: none; align-items: center; justify-content: center;">
+    <div style="background: var(--bg-surface); padding: 36px 44px; border-radius: var(--radius-xl); text-align: center; max-width: 440px; box-shadow: var(--shadow-xl);">
+        <div style="font-size: 2.8rem; color: var(--primary); margin-bottom: 16px;">
+            <i class="fa-solid fa-circle-notch fa-spin"></i>
+        </div>
+        <h3 style="font-size: 1.3rem; margin-bottom: 10px; color: var(--text-primary);">AI Evaluation In Progress</h3>
+        <p class="overlay-msg" style="color: var(--text-secondary); font-size: 0.94rem;">Analyzing technical precision and synthesizing rubric feedback...</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/audio_camera.js') }}"></script>
+<script src="{{ url_for('static', filename='js/interview.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    window.interviewApp = new InterviewController("{{ interview.session_id }}");
+});
+</script>
+{% endblock %}
